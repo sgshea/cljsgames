@@ -26,7 +26,12 @@
 (def l-paddle
   (atom {:x 10 :y (/ HEIGHT 3) :w 10 :h 70}))
 (def r-paddle
-  (atom {:x (- WIDTH 20) :y (/ HEIGHT 3) :w 10 :h 70}))
+  (atom {:x (- WIDTH 20) :y (/ HEIGHT 3) :w 10 :h 70})) 
+;; scores
+(def p1-score
+  (atom 0))
+(def p2-score
+  (atom 0))
 
 (defn draw-ball
   "Draw a ball"
@@ -51,13 +56,15 @@
 
 ;; functions handling pause and reset
 (def paused?
-  (atom false))
+  (atom true))
 
 (defn reset-game
   "Resets game to default values"
   []
   (reset! ball {:x (/ WIDTH 2) :y (/ HEIGHT 2) :w 10 :h 10})
-  (reset! ball-direction [1.5 0])
+  (if (neg? (first @ball-direction))
+    (reset! ball-direction [1.5 0])
+    (reset! ball-direction [-1.5 0]))
   (reset! l-paddle {:x 10 :y (/ HEIGHT 3) :w 10 :h 70})
   (reset! r-paddle {:x (- WIDTH 20) :y (/ HEIGHT 3) :w 10 :h 70})
   (reset! paused? false))
@@ -93,7 +100,10 @@
     (swap! paused? not)
     ;; reset game
     (= (q/key-as-keyword) :n)
-    (reset-game)
+    (do
+      (reset! p1-score 0)
+      (reset! p2-score 0)
+      (reset-game))
     ))
 
 (defn key-release
@@ -137,6 +147,10 @@
 (defn draw-pong []
   (q/background 0x20)
   (q/fill 0xff)
+  (q/stroke 0x20)
+  (q/text-size 15)
+  (q/text (str "Player 1 score: " @p1-score) (/ WIDTH 4) (- HEIGHT 10))
+  (q/text (str "Player 2 score: " @p2-score) (* 3 (/ WIDTH 4)) (- HEIGHT 10))
   (draw-rect @l-paddle)
   (draw-rect @r-paddle)
   (draw-ball @ball)
@@ -156,6 +170,13 @@
       (swap! r-paddle update-in [:y] dec)
     (true? (:down @keys-pressed))
       (swap! r-paddle update-in [:y] inc))
+  ;; increment score when ball hits bounds and reset
+  (when (<= WIDTH (:x @ball))
+    (swap! p1-score inc)
+    (reset-game))
+  (when (>= 0 (:x @ball))
+    (swap! p2-score inc)
+    (reset-game))
   ;; invert direction if ball hits bounds
   (when (or (> (:y @ball) HEIGHT) (< (:y @ball) 0))
     (swap! ball-direction (fn [[x y]] [x (- y)])))
