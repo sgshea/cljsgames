@@ -24,9 +24,9 @@
 
 ;; define two paddles
 (def l-paddle
-  (atom {:x 10 :y 65 :w 10 :h (/ HEIGHT 3)}))
+  (atom {:x 10 :y (/ HEIGHT 3) :w 10 :h 70}))
 (def r-paddle
-  (atom {:x (- WIDTH 20) :y 65 :w 10 :h (/ HEIGHT 3)}))
+  (atom {:x (- WIDTH 20) :y (/ HEIGHT 3) :w 10 :h 70}))
 
 (defn draw-ball
   "Draw a ball"
@@ -49,6 +49,33 @@
          :y (+ (:y ball) ball-y))
   )
 
+;; functions handling pause and reset
+(def paused?
+  (atom false))
+
+(defn reset-game
+  "Resets game to default values"
+  []
+  (reset! ball {:x (/ WIDTH 2) :y (/ HEIGHT 2) :w 10 :h 10})
+  (reset! ball-direction [1.5 0])
+  (reset! l-paddle {:x 10 :y (/ HEIGHT 3) :w 10 :h 70})
+  (reset! r-paddle {:x (- WIDTH 20) :y (/ HEIGHT 3) :w 10 :h 70})
+  (reset! paused? false))
+
+(defn game-menu
+"To be displayed when game not playing"
+  []
+  (q/background 0 0 0)
+  (q/stroke 255 255 255)
+  (q/fill 255 255 255)
+  (q/text-size 20)
+  (q/text-align :center)
+  (q/text "Press 'r' to resume, 'n' for new game" (/ WIDTH 2) (- HEIGHT 30))
+  (q/text "Player 1 moves with 'w' and 's'" (/ WIDTH 2) (/ HEIGHT 3))
+  (q/text "Player 2 moves with up and down arrow keys" (/ WIDTH 2) (/ HEIGHT 2))
+  )
+
+;; input
 (defn key-press
   "Set paddle to be moving upon key press"
   []
@@ -61,6 +88,12 @@
     (swap! keys-pressed assoc-in [:up] true)
     (= (q/key-as-keyword) :ArrowDown)
     (swap! keys-pressed assoc-in [:down] true)
+    ;; activate game menu
+    (= (q/key-as-keyword) :r)
+    (swap! paused? not)
+    ;; reset game
+    (= (q/key-as-keyword) :n)
+    (reset-game)
     ))
 
 (defn key-release
@@ -93,19 +126,6 @@
    (/ (- (:y ball) (:y paddle)) (:h paddle))
    0.5))
 
-(defn game-menu
-"To be displayed when game not playing"
-  []
-  (q/background 0 0 0)
-  (q/stroke 255 255 255)
-  (q/fill 255 255 255)
-  (q/text-size 20)
-  (q/text-align :center)
-  (q/text "Press R to resume" (/ WIDTH 2) (- HEIGHT 30))
-  (q/text "Player 1 moves with 'w' and 's'" (/ WIDTH 2) (/ HEIGHT 3))
-  (q/text "Player 2 moves with up and down arrow keys" (/ WIDTH 2) (/ HEIGHT 2))
-  )
-
 ;; quil functions
 
 (defn setup-pong []
@@ -128,14 +148,14 @@
   (swap! ball next-ball @ball-direction)
   ;; check movement
   (cond
-  (true? (:w @keys-pressed))
-    (swap! l-paddle update-in [:y] dec)
-  (true? (:s @keys-pressed))
-    (swap! l-paddle update-in [:y] inc)
-  (true? (:up @keys-pressed))
-    (swap! r-paddle update-in [:y] inc)
-  (true? (:down @keys-pressed))
-    (swap! r-paddle update-in [:y] dec))
+    (true? (:w @keys-pressed))
+      (swap! l-paddle update-in [:y] dec)
+    (true? (:s @keys-pressed))
+      (swap! l-paddle update-in [:y] inc)
+    (true? (:up @keys-pressed))
+      (swap! r-paddle update-in [:y] dec)
+    (true? (:down @keys-pressed))
+      (swap! r-paddle update-in [:y] inc))
   ;; invert direction if ball hits bounds
   (when (or (> (:y @ball) HEIGHT) (< (:y @ball) 0))
     (swap! ball-direction (fn [[x y]] [x (- y)])))
@@ -146,10 +166,18 @@
     (swap! ball-direction (fn [[x _]] [(* x -1.1) (hit-factor @r-paddle @ball)])))
   )
 
+(defn pause-menu
+  []
+  (if @paused?
+    (game-menu)
+    (do
+      (update-pong)
+      (draw-pong))))
+
 ;; run
 (q/defsketch pong
   :host "pong"
-  :draw (fn [] (update-pong) (draw-pong))
+  :draw (fn [] (pause-menu))
   :size [WIDTH HEIGHT]
   :setup setup-pong
   :key-pressed key-press
