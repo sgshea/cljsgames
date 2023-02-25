@@ -1,4 +1,4 @@
-(ns games.pong
+(ns cljsgames.pong
   (:require [quil.core :as q :include-macros true]))
 
 (def WIDTH 450)

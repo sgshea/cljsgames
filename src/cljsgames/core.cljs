@@ -1,14 +1,15 @@
-(ns games.core
+(ns cljsgames.core
     (:require
      [reagent.core :as r]
      [reagent.dom :as d]
-     [games.pong :as pong]))
+     [cljsgames.pong :as pong]))
 
 ;; -------------------------
 ;; Views
 
 (defn home-page []
-  [:div
+  [:div 
+   [:h2 "Welcome to CLJS games"]
    [pong/main]])
 
 ;; -------------------------

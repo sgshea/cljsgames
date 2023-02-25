@@ -6,7 +6,7 @@
  :builds       {:app {:target     :browser
                       :output-dir "public/js"
                       :asset-path "/js"
-                      :modules    {:app {:entries [games.core]}}
-                      :devtools   {:after-load games.core/mount-root}}}
+                      :modules    {:app {:entries [cljsgames.core]}}
+                      :devtools   {:after-load cljsgames.core/mount-root}}}
 
  :dev-http     {3000 {:root "public"}}}
