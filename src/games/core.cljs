@@ -2,7 +2,7 @@
     (:require
      [reagent.core :as r]
      [reagent.dom :as d]
-     [games.pong :as pong]))
+     [pong :as pong]))
 
 ;; -------------------------
 ;; Views
