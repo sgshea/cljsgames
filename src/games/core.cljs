@@ -8,7 +8,8 @@
 ;; Views
 
 (defn home-page []
-  [pong/main])
+  [:div
+   [pong/main]])
 
 ;; -------------------------
 ;; Initialize app
@@ -16,5 +17,5 @@
 (defn mount-root []
   (d/render [home-page] (.getElementById js/document "app")))
 
-(defn ^:export init! []
+(def ^:export init! []
   (mount-root))
