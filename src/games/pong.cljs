@@ -1,4 +1,4 @@
-(ns pong
+(ns games.pong
   (:require [quil.core :as q :include-macros true]))
 
 (def WIDTH 450)
