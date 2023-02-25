@@ -17,5 +17,5 @@
 (defn mount-root []
   (d/render [home-page] (.getElementById js/document "app")))
 
-(def ^:export init! []
+(defn ^:export init! []
   (mount-root))
