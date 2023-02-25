@@ -9,7 +9,6 @@
 
 (defn home-page []
   [:div 
-   [:h2 "Welcome to CLJS games"]
    [pong/main]])
 
 ;; -------------------------
